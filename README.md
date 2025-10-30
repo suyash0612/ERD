@@ -1,3 +1,8 @@
+# VIEW OF ERD FILE CREATED USING AGENT
+![alt text](image.png)
+
+
+
 # ERD Repository (bigER + VS Code)
 
 This repository is for students to submit Entity‑Relationship Diagrams (ERDs) using the bigER VS Code extension.
