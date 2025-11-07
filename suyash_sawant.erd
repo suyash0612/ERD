@@ -1,0 +1,90 @@
+erdiagram RC_Models
+
+/*
+RC Models Business Model
+- An e-commerce system for RC model kits
+- Handles orders, inventory, and manufacturer relationships
+- Supports backorders and invoice generation
+*/
+
+notation=crowsfoot
+
+// Entities with their attributes
+entity Customer {
+    customer_id: INTEGER key
+    customer_name: VARCHAR(100)
+    customer_email: VARCHAR(100)  // UNIQUE constraint
+    customer_address: VARCHAR(255)
+    customer_phone: VARCHAR(20)
+    customer_source: VARCHAR(50)
+    date_registered: DATE
+}
+
+entity Order {
+    order_id: INTEGER key
+    order_date: DATETIME
+    order_status: VARCHAR(20)  // ENUM: Pending, Processing, Completed, etc.
+    customer_id: INTEGER  // Foreign key to Customer
+}
+
+entity OrderLine {
+    order_id: INTEGER key    // Part of composite key
+    product_id: INTEGER key  // Part of composite key
+    quantity: INTEGER
+    price_per_unit: DECIMAL(10,2)
+    is_backordered: BOOLEAN
+    backorder_date: DATE
+}
+
+entity Invoice {
+    invoice_id: INTEGER key
+    order_id: INTEGER       // Foreign key to Order with UNIQUE constraint
+    inv_date: DATETIME
+    inv_total: DECIMAL(10,2)
+    shipping_charges: DECIMAL(10,2)
+    tax_amount: DECIMAL(10,2)
+    payment_status: VARCHAR(20)  // ENUM: Pending, Paid, etc.
+    payment_date: DATETIME
+}
+
+entity Product {
+    product_id: INTEGER key
+    product_name: VARCHAR(200)
+    product_category: VARCHAR(20)  // ENUM: Aircraft, Ship, Car, Decal
+    product_scale: VARCHAR(10)     // ENUM: 1/144, 1/72, 1/48, 1/32, 1/24
+    product_price: DECIMAL(10,2)
+    product_min_qty: INTEGER
+    product_stock_level: INTEGER
+    product_promo: VARCHAR(255)
+    is_active: BOOLEAN
+    mfg_id: INTEGER        // Foreign key to Manufacturer
+}
+
+entity Manufacturer {
+    mfg_id: INTEGER key
+    mfg_name: VARCHAR(100)  // UNIQUE constraint
+    mfg_website: VARCHAR(255)
+    mfg_contact_info: VARCHAR(100)
+    is_active: BOOLEAN
+}
+
+// Relationships with proper cardinality and roles
+relationship Places {
+    Customer[1 | "buyer"] -> Order[0..N | "placed_order"]
+}
+
+relationship Contains {
+    Order[1 | "parent_order"] -> OrderLine[1..N | "line_item"]
+}
+
+relationship AppearesIn {
+    Product[1 | "ordered_product"] -> OrderLine[0..N | "order_entry"]
+}
+
+relationship Generates {
+    Order[1 | "source_order"] -> Invoice[1 | "billing_invoice"]
+}
+
+relationship Supplies {
+    Manufacturer[1 | "supplier"] -> Product[0..N | "supplied_item"]
+}
